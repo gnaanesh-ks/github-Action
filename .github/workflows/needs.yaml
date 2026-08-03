@@ -13,7 +13,8 @@ jobs:
 
   # Both of these wait for `build`, then run in parallel with each other.
   test:
-    needs: build1                 # single dependency
+    build2: build1
+    needs: build2                 # single dependency
     runs-on: ubuntu-latest
     steps:
       - run: |
@@ -21,13 +22,13 @@ jobs:
           sleep 10
 
   lint:
-    needs: build1
+    needs: build2
     runs-on: ubuntu-latest
     steps:
       - run: |
           echo "Linting — I run at the same time as test, not after it."
           sleep 4
-          exit 1
+          
 
   # Fan-in: waits for BOTH. Note the list syntax.
   deploy:
