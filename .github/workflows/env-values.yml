@@ -19,7 +19,7 @@ jobs:
 
       - name: Print environment variable
         run: |
-          echo "Job1 MY_ENV_VAR: $LEARNING"
+          echo "Job1 MY_ENV_VAR: $APP"
 
   job2:
     runs-on: ubuntu-latest
