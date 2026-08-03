@@ -1,4 +1,4 @@
-name: env-scopes
+name: env-values-key
 
 on: workflow_dispatch
 
