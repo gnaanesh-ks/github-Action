@@ -1,4 +1,4 @@
-name: env-values
+name: env-scopes
 
 on: workflow_dispatch
 
@@ -35,3 +35,7 @@ jobs:
       - name: Print environment variable from job1
         run: |
           echo "Job2 MY_ENV_VAR2: $MY_ENV_VAR2"
+
+      - name: Print environment variable from job2
+        run: |
+          echo "Job2 MY_ENV_VAR: $APP"    
