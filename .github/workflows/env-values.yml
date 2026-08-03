@@ -1,4 +1,4 @@
-name: env-values-key
+name: env-VALUES
 
 on: workflow_dispatch
 
@@ -23,6 +23,8 @@ jobs:
 
   job2:
     runs-on: ubuntu-latest
+    env: 
+      APP: "TEACH"
     
     steps:
       - name: Checkout repository
@@ -38,4 +40,4 @@ jobs:
 
       - name: Print environment variable from job2
         run: |
-          echo "Job2 MY_ENV_VAR: $APP"    
+          echo "Job2 MY_ENV_VAR: $APP" 
