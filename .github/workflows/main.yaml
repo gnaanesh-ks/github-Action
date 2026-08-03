@@ -1,0 +1,36 @@
+name: env-scopes
+
+on: workflow_dispatch
+
+env:
+  NAME: "env-scopes"
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set environment variable
+        run: |
+          echo "MY_ENV_VAR=Hello from job1" >> $GITHUB_ENV
+
+      - name: Print environment variable
+        run: |
+          echo "Job1 MY_ENV_VAR: $MY_ENV_VAR"
+
+  job2:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set environment variable
+        run: |
+          echo "MY_ENV_VAR2=Hello from job2" >> $GITHUB_ENV  
+
+      - name: Print environment variable from job1
+        run: |
+          echo "Job2 MY_ENV_VAR2: $MY_ENV_VAR2"
