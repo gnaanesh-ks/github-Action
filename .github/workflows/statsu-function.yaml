@@ -1,0 +1,31 @@
+name: status-function
+
+on: workflow_dispatch
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        run: echo "Hello world!"
+  job2:
+    needs: job1
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Checkout repository
+        run: echo "job1 is successful!"
+  job3:
+    needs: job1
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Checkout repository
+        run: echo "job1 has failed!"
+  job4:
+    needs: job1
+    runs-on: ubuntu-latest
+    if: cancelled()
+    steps:
+      - name: Checkout repository
+        run: echo "job1 has been cancelled!"      
