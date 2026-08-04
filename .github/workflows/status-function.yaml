@@ -1,3 +1,6 @@
+name: status-function
+
+on: workflow_dispatch
 
 jobs:
   job1:
@@ -46,4 +49,4 @@ jobs:
     if: failure() && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout repository
-        run: echo "send mail to oncall engineer!"                                     
+        run: echo "send mail to oncall engineer!"    
