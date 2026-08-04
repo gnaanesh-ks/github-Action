@@ -20,14 +20,6 @@ jobs:
           echo "Testing — build already finished before I started."
           sleep 10
 
-  lint:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Linting — I run at the same time as test, not after it."
-          sleep 4
-          
 
   # Fan-in: waits for BOTH. Note the list syntax.
   deploy:
