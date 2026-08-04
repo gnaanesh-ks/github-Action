@@ -1,44 +1,57 @@
-name: env-if-condition
+name: 18 - If Conditionals
 
-on: workflow_dispatch
-
-env:
-  NAME: "env-scopes"
-  APP: "LEARNING"
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 
 jobs:
-  job1:
+  # ── Job-level if ─────────────────────────────────────────────────────────
+  always-runs:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - run: echo "No condition — I run for every trigger."
 
-      - name: Set environment variable
-        run: |
-          echo "MY_ENV_VAR=Hello from job1" >> $GITHUB_ENV
-
-      - name: Print environment variable
-        run: |
-          echo "Job1 MY_ENV_VAR: $APP"
-
-  job2:
+  only-on-main-push:
+    # Two conditions joined with && . Also available: || and !
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    env: 
-      APP: "TEACH"
-    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - run: echo "A real deploy job would be gated exactly like this."
 
-      - name: Set environment variable
-        run: |
-          echo "MY_ENV_VAR2=Hello from job2" >> $GITHUB_ENV  
+  only-on-pull-requests:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "PR-only checks (e.g. commenting on the diff) go here."
 
-      - name: Print environment variable from job1
-        run: |
-          echo "Job2 MY_ENV_VAR2: $MY_ENV_VAR2"
+  # ── Step-level if ────────────────────────────────────────────────────────
+  step-conditions:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_TARGET: staging
+    steps:
+      - name: Compare against an env variable
+        if: env.DEPLOY_TARGET == 'staging'
+        run: echo "Deploying to staging."
 
-      - name: Print environment variable from job2
-        if: ${{ env.APP == 'TEACH' }}
-        run: |
-          echo "Job2 MY_ENV_VAR: $APP"    
+      - name: This one is skipped
+        if: env.DEPLOY_TARGET == 'production'
+        run: echo "You will never see this line."
+
+      # Useful string helpers: contains(), startsWith(), endsWith()
+      - name: String helper functions
+        if: startsWith(github.ref, 'refs/heads/') && !contains(github.ref_name, 'wip')
+        run: echo "Running on a branch that is not marked wip."
+
+      # `steps.<id>.outcome` lets a later step react to an earlier one.
+      # Requires the earlier step to have an `id`.
+      - name: A step that might fail
+        id: risky
+        continue-on-error: true        # do not kill the job (see file 33)
+        run: exit 1
+
+      - name: React to the failure
+        if: steps.risky.outcome == 'failure'
+        run: echo "The risky step failed, but we caught it and carried on."
