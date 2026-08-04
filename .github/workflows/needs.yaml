@@ -31,5 +31,4 @@ jobs:
           echo "Deploying."
           # `needs.<job>.result` is one of: success, failure, cancelled, skipped
           echo "test result: ${{ needs.test.result }}"
-          echo "lint result: ${{ needs.lint.result }}"
           echo "test outputs: ${{ needs.test.outputs }}"
