@@ -1,4 +1,4 @@
-name: 17 - Needs (Job Dependencies)
+name: need-job
 
 on: workflow_dispatch
 
@@ -13,8 +13,7 @@ jobs:
 
   # Both of these wait for `build`, then run in parallel with each other.
   test:
-    build2: build1
-    needs: build2                 # single dependency
+    needs: build1                 # single dependency
     runs-on: ubuntu-latest
     steps:
       - run: |
@@ -22,7 +21,7 @@ jobs:
           sleep 10
 
   lint:
-    needs: build2
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - run: |
@@ -42,10 +41,3 @@ jobs:
           echo "test result: ${{ needs.test.result }}"
           echo "lint result: ${{ needs.lint.result }}"
           echo "test outputs: ${{ needs.test.outputs }}"
-
-
-      # Dump the ENTIRE needs context as JSON — great for debugging/learning
-      - name: Dump full needs context
-        env:
-          NEEDS_DATA: ${{ toJSON(needs) }}
-        run: echo "$NEEDS_DATA"
