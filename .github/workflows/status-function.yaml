@@ -1,6 +1,3 @@
-name: status-function
-
-on: workflow_dispatch
 
 jobs:
   job1:
@@ -28,4 +25,25 @@ jobs:
     if: cancelled()
     steps:
       - name: Checkout repository
-        run: echo "job1 has been cancelled!"      
+        run: echo "job1 has been cancelled!" 
+  job5:
+    needs: job1
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Checkout repository
+        run: echo "job1 has completed!"
+  job6:
+    needs: job1
+    runs-on: ubuntu-latest
+    if: success() && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        run: echo "send mail to oncall engineer!" 
+  job7:
+    needs: job1
+    runs-on: ubuntu-latest
+    if: failure() && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        run: echo "send mail to oncall engineer!"                                     
