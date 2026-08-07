@@ -19,11 +19,17 @@ jobs:
       - run: |
           echo "Testing — build already finished before I started."
           sleep 10
-
+  link:
+    needs: build1                 # single dependency
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Testing — build already finished before I started."
+          sleep 10
 
   # Fan-in: waits for BOTH. Note the list syntax.
   deploy:
-    needs: [test]          # list = wait for every one of them
+    needs: [test,link]          # list = wait for every one of them
     runs-on: ubuntu-latest
     steps:
       - name: Show what I waited for
