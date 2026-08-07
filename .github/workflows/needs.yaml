@@ -11,30 +11,29 @@ jobs:
           echo "Building the app..."
           sleep 5
 
-  # Both of these wait for `build`, then run in parallel with each other.
+
   test:
-    needs: build1                 # single dependency
+    needs: build1                 
     runs-on: ubuntu-latest
     steps:
       - run: |
           echo "Testing — build already finished before I started."
           sleep 10
   link:
-    needs: build1                 # single dependency
+    needs: build1                 
     runs-on: ubuntu-latest
     steps:
       - run: |
           echo "Testing — build already finished before I started."
           sleep 10
 
-  # Fan-in: waits for BOTH. Note the list syntax.
   deploy:
-    needs: [test,link]          # list = wait for every one of them
+    needs: [test,link]         
     runs-on: ubuntu-latest
     steps:
       - name: Show what I waited for
         run: |
           echo "Deploying."
-          # `needs.<job>.result` is one of: success, failure, cancelled, skipped
+          
           echo "test result: ${{ needs.test.result }}"
           echo "test outputs: ${{ needs.test.outputs }}"
