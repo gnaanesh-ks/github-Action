@@ -1,0 +1,34 @@
+name: 31 - Environments & Approvals
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Building the artifact that both environments will deploy."
+
+  deploy-staging:
+    needs: build
+    runs-on: ubuntu-latest
+
+    # No protection rules on staging, so this runs immediately.
+    environment:
+      name: staging
+      url: ${{ vars.API_URL }}      # renders as a clickable link on the run page
+                                    # and on the Environments dashboard
+
+    steps:
+      - name: Deploy to staging
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}   # resolves to the STAGING value
+        run: |
+          echo "Target URL : ${{ vars.API_URL }}"     # plain text — readable
+          echo "Token length: ${#DEPLOY_TOKEN}"       # never echo the token itself
+          echo "✅ Deployed to staging."
