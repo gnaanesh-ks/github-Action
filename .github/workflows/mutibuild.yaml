@@ -1,0 +1,31 @@
+name: hello-world
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu:latest
+
+    steps:
+      - name: build
+        run: |
+          echo "hello world!"
+          sleep 5  
+
+
+  test1:
+    runs-on: ubuntu:latest
+    need: build
+    if: success()
+    steps:
+      - name: check the build 
+        run: echo "build is successful"
+        
+  test2:
+    runs-on: ubuntu:latest
+    need: build
+    if: failure()
+    steps:
+      - name: check the build 
+        run: echo "build is failure"
+    
