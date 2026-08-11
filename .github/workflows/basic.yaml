@@ -8,6 +8,7 @@ jobs:
 
     outputs:
       foo: ${{ steps.generate-foo.outputs.foo }}
+      FRF: ${{ steps.generate-foo.outputs.FRF }}
     steps:
       - name: Generate and export foo
         id: generate-foo
@@ -33,4 +34,5 @@ jobs:
       - name: Inspect values inside consumer (note FOO is unset)
         run: |
           echo "Value from producer:        ${{ needs.producer.outputs.foo }}"
+          echo "Value of product: ${{ needs.producer.outputs.FRF }}"
           echo "foo in consumer:            ${foo:-<UNSET>}"
