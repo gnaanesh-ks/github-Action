@@ -1,74 +1,40 @@
-name: Permissions
+name: Matrix and Conditionals
+
 on:
   workflow_dispatch:
 
-# Permissions can be defined at the workflow or job level
-# https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/controlling-permissions-for-github_token
-
-################
-# Default Permissions
-################
-# permissions:
-#   contents: read
-#   packages: read
-################
-
-################
-# All Permission Types
-################
-# permissions:
-#   actions: read|write|none
-#   attestations: read|write|none
-#   checks: read|write|none
-#   contents: read|write|none
-#   deployments: read|write|none
-#   id-token: write|none
-#   issues: read|write|none
-#   models: read|none
-#   discussions: read|write|none
-#   packages: read|write|none
-#   pages: read|write|none
-#   pull-requests: read|write|none
-#   security-events: read|write|none
-#   statuses: read|write|none
-################
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  read-only-pr:
+  matrix-job:
     runs-on: ubuntu-24.04
-    permissions:
-      pull-requests: read # Can read PR data only
-    continue-on-error: true # Avoids failing entire workflow
+    strategy:
+      fail-fast: true
+      matrix:
+        number: [1, 2]
+        letter: [a, b, c]
+        exclude:
+          - number: 1
+            letter: c
+    timeout-minutes: 5
+
     steps:
-      - uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493 # v5.0.0
-      
-      - name: List the first 5 open PRs (allowed)
-        run: gh pr list --limit 5
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Attempt to add a label (expected to fail)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Step 1 – always runs
+      - name: Echo number and letter
         run: |
-          gh pr edit 1 --add-label "documentation"
+          echo "Number: ${{ matrix.number }}"
+          echo "Letter: ${{ matrix.letter }}"
 
-      - name: Confirm the failure
-        if: failure()
-        run: echo "❌  Write operation was blocked as expected – token is read-only."
+      # Step 2 – run for every combo EXCEPT number=2 ∧ letter=c
+      - name: Run everywhere except 2c
+        if: ${{ ! (matrix.number == 2 && matrix.letter == 'c') }}
+        run: echo "✔ This step runs for ${{ matrix.number }}${{ matrix.letter }}"
 
-  read-write-pr:
+  sleep-job:
     runs-on: ubuntu-24.04
-    permissions:
-      pull-requests: write
     steps:
-      - uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493 # v5.0.0
-
-      - name: Attempt to add a label (expected to succeed)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh pr edit 1 --add-label "documentation"
-      - name: Confirm the
-        if: success()
-        run: echo "✅ Write operation succeeded!"
+      - name: Sleep (to give time to be cancelled)
+        run: sleep 100
+        timeout-minutes: 2
