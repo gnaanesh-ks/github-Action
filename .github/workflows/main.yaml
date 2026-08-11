@@ -1,36 +1,74 @@
-name: env-scopes
+name: Permissions
+on:
+  workflow_dispatch:
 
-on: workflow_dispatch
+# Permissions can be defined at the workflow or job level
+# https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/controlling-permissions-for-github_token
 
-env:
-  NAME: "env-scopes"
+################
+# Default Permissions
+################
+# permissions:
+#   contents: read
+#   packages: read
+################
+
+################
+# All Permission Types
+################
+# permissions:
+#   actions: read|write|none
+#   attestations: read|write|none
+#   checks: read|write|none
+#   contents: read|write|none
+#   deployments: read|write|none
+#   id-token: write|none
+#   issues: read|write|none
+#   models: read|none
+#   discussions: read|write|none
+#   packages: read|write|none
+#   pages: read|write|none
+#   pull-requests: read|write|none
+#   security-events: read|write|none
+#   statuses: read|write|none
+################
 
 jobs:
-  job1:
-    runs-on: ubuntu-latest
+  read-only-pr:
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: read # Can read PR data only
+    continue-on-error: true # Avoids failing entire workflow
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493 # v5.0.0
+      
+      - name: List the first 5 open PRs (allowed)
+        run: gh pr list --limit 5
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set environment variable
+      - name: Attempt to add a label (expected to fail)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "MY_ENV_VAR=Hello from job1" >> $GITHUB_ENV
+          gh pr edit 1 --add-label "documentation"
 
-      - name: Print environment variable
-        run: |
-          echo "Job1 MY_ENV_VAR: $MY_ENV_VAR"
+      - name: Confirm the failure
+        if: failure()
+        run: echo "❌  Write operation was blocked as expected – token is read-only."
 
-  job2:
-    runs-on: ubuntu-latest
-    
+  read-write-pr:
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493 # v5.0.0
 
-      - name: Set environment variable
+      - name: Attempt to add a label (expected to succeed)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "MY_ENV_VAR2=Hello from job2" >> $GITHUB_ENV  
-
-      - name: Print environment variable from job1
-        run: |
-          echo "Job2 MY_ENV_VAR2: $MY_ENV_VAR2"
+          gh pr edit 1 --add-label "documentation"
+      - name: Confirm the
+        if: success()
+        run: echo "✅ Write operation succeeded!"
